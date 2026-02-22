@@ -106,22 +106,31 @@ export default function SetupPage({ onBack, onReady }) {
         </>
       )}
 
-      {/* Full-viewport Hyperspeed background when generating */}
-      {generating && (
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            zIndex: 0,
-            animation: progress >= 100
-              ? 'fadeIn 0.8s ease both, warpBurst 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards'
-              : 'fadeIn 0.8s ease both',
-            transformOrigin: 'center 60%',
-          }}
-        >
-          <Hyperspeed effectOptions={effectOptions} />
-        </div>
-      )}
+      {/* Hyperspeed — always mounted so WebGL context + shaders are preloaded */}
+      <div
+        style={
+          generating
+            ? {
+                position: 'absolute',
+                inset: 0,
+                zIndex: 0,
+                animation: progress >= 100
+                  ? 'fadeIn 0.8s ease both, warpBurst 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+                  : 'fadeIn 0.8s ease both',
+                transformOrigin: 'center 60%',
+              }
+            : {
+                position: 'absolute',
+                width: 0,
+                height: 0,
+                overflow: 'hidden',
+                opacity: 0,
+                pointerEvents: 'none',
+              }
+        }
+      >
+        <Hyperspeed effectOptions={effectOptions} />
+      </div>
 
       {/* Cinematic vignette overlay — depth + readability */}
       {generating && (

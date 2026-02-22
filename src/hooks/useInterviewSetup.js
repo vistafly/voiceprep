@@ -1,6 +1,8 @@
 import { useState, useRef, useCallback } from 'react';
 import { generateInterview } from '../lib/api';
 
+const MIN_GENERATING_MS = 5000;
+
 export function useInterviewSetup() {
   // TODO: remove mock defaults before production
   const [jobDescription, setJobDescription] = useState(
@@ -52,6 +54,8 @@ Requirements:
     setError(null);
     setProgress(0);
 
+    const startedAt = Date.now();
+
     // Fake progress animation
     intervalRef.current = setInterval(() => {
       setProgress((prev) => {
@@ -62,6 +66,12 @@ Requirements:
 
     try {
       const result = await generateInterview(jobDescription, companyName);
+
+      // Ensure the animation plays long enough to feel intentional
+      const elapsed = Date.now() - startedAt;
+      if (elapsed < MIN_GENERATING_MS) {
+        await new Promise((r) => setTimeout(r, MIN_GENERATING_MS - elapsed));
+      }
 
       clearInterval(intervalRef.current);
       setProgress(100);
