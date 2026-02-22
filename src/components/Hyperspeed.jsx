@@ -5,6 +5,9 @@ import { BloomEffect, EffectComposer, EffectPass, RenderPass, SMAAEffect, SMAAPr
 
 import './Hyperspeed.css';
 
+const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+  (navigator.maxTouchPoints > 1 && window.innerWidth < 1024);
+
 const DEFAULT_EFFECT_OPTIONS = {
   onSpeedUp: () => {},
   onSlowDown: () => {},
@@ -343,6 +346,11 @@ const Hyperspeed = ({ effectOptions = DEFAULT_EFFECT_OPTIONS }) => {
 
     class App {
       constructor(container, options = {}) {
+        // Reduce instance counts on mobile for better performance
+        if (isMobile) {
+          options.lightPairsPerRoadWay = Math.min(options.lightPairsPerRoadWay, 20);
+          options.totalSideLightSticks = Math.min(options.totalSideLightSticks, 10);
+        }
         this.options = options;
         if (this.options.distortion == null) {
           this.options.distortion = {
@@ -358,10 +366,11 @@ const Hyperspeed = ({ effectOptions = DEFAULT_EFFECT_OPTIONS }) => {
 
         this.renderer = new THREE.WebGLRenderer({
           antialias: false,
-          alpha: true
+          alpha: true,
+          powerPreference: isMobile ? 'low-power' : 'high-performance'
         });
         this.renderer.setSize(initW, initH, false);
-        this.renderer.setPixelRatio(window.devicePixelRatio);
+        this.renderer.setPixelRatio(isMobile ? Math.min(window.devicePixelRatio, 1.5) : window.devicePixelRatio);
         this.composer = new EffectComposer(this.renderer);
         container.append(this.renderer.domElement);
 
@@ -442,24 +451,32 @@ const Hyperspeed = ({ effectOptions = DEFAULT_EFFECT_OPTIONS }) => {
           new BloomEffect({
             luminanceThreshold: 0.2,
             luminanceSmoothing: 0,
-            resolutionScale: 1
+            resolutionScale: isMobile ? 0.5 : 1
           })
         );
 
-        const smaaPass = new EffectPass(
-          this.camera,
-          new SMAAEffect({
-            preset: SMAAPreset.MEDIUM,
-            searchImage: SMAAEffect.searchImageDataURL,
-            areaImage: SMAAEffect.areaImageDataURL
-          })
-        );
         this.renderPass.renderToScreen = false;
-        this.bloomPass.renderToScreen = false;
-        smaaPass.renderToScreen = true;
-        this.composer.addPass(this.renderPass);
-        this.composer.addPass(this.bloomPass);
-        this.composer.addPass(smaaPass);
+
+        if (isMobile) {
+          // Skip SMAA on mobile — high-DPI screens don't need it
+          this.bloomPass.renderToScreen = true;
+          this.composer.addPass(this.renderPass);
+          this.composer.addPass(this.bloomPass);
+        } else {
+          const smaaPass = new EffectPass(
+            this.camera,
+            new SMAAEffect({
+              preset: SMAAPreset.MEDIUM,
+              searchImage: SMAAEffect.searchImageDataURL,
+              areaImage: SMAAEffect.areaImageDataURL
+            })
+          );
+          this.bloomPass.renderToScreen = false;
+          smaaPass.renderToScreen = true;
+          this.composer.addPass(this.renderPass);
+          this.composer.addPass(this.bloomPass);
+          this.composer.addPass(smaaPass);
+        }
       }
 
       loadAssets() {
@@ -686,7 +703,7 @@ const Hyperspeed = ({ effectOptions = DEFAULT_EFFECT_OPTIONS }) => {
       init() {
         const options = this.options;
         let curve = new THREE.LineCurve3(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1));
-        let geometry = new THREE.TubeGeometry(curve, 40, 1, 8, false);
+        let geometry = new THREE.TubeGeometry(curve, isMobile ? 16 : 40, 1, isMobile ? 4 : 8, false);
 
         let instanced = new THREE.InstancedBufferGeometry().copy(geometry);
         instanced.instanceCount = options.lightPairsPerRoadWay * 2;
@@ -967,11 +984,11 @@ const Hyperspeed = ({ effectOptions = DEFAULT_EFFECT_OPTIONS }) => {
 
       createPlane(side, width, isRoad) {
         const options = this.options;
-        let segments = 100;
+        let segments = isMobile ? 40 : 100;
         const geometry = new THREE.PlaneGeometry(
           isRoad ? options.roadWidth : options.islandWidth,
           options.length,
-          20,
+          isMobile ? 8 : 20,
           segments
         );
         let uniforms = {
