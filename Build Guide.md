@@ -1,8 +1,8 @@
-# VoicePrep — Complete Build Guide for Claude Code
+# InterviewMe — Complete Build Guide for Claude Code
 
 ## What This Is
 
-A step-by-step build guide that Claude Code can execute to create VoicePrep from scratch — a premium, voice-first mock interview web application where users paste a job description and company name, and AI generates a tailored mock interview with voice interaction and real-time grading.
+A step-by-step build guide that Claude Code can execute to create InterviewMe from scratch — a premium, voice-first mock interview web application where users paste a job description and company name, and AI generates a tailored mock interview with voice interaction and real-time grading.
 
 ---
 
@@ -80,8 +80,8 @@ npx jsrepo add https://reactbits.dev/content/TextAnimations/SplitText
 
 ```bash
 # Create the project
-npm create vite@latest voiceprep -- --template react
-cd voiceprep
+npm create vite@latest interviewme -- --template react
+cd interviewme
 
 # Install dependencies
 npm install
@@ -364,7 +364,7 @@ export async function checkMicPermission() {
 Session history persistence.
 
 ```javascript
-const STORAGE_KEY = 'voiceprep_history';
+const STORAGE_KEY = 'interviewme_history';
 
 export function loadHistory() {
   // Returns array of session objects from localStorage
@@ -492,7 +492,7 @@ The entry point. Sets the tone for the entire product.
 
 **Animations:** Every element uses staggered fadeUp with increasing delay classes.
 
-**Navigation:** NavBar with logo ("◉ VoicePrep") on left, session count on right.
+**Navigation:** NavBar with logo ("◉ InterviewMe") on left, session count on right.
 
 ### File: `src/pages/SetupPage.jsx`
 
@@ -653,7 +653,7 @@ npm run build
 ```javascript
 // vite.config.js
 export default defineConfig({
-  base: '/voiceprep/',
+  base: '/interviewme/',
   plugins: [react()],
 });
 ```
@@ -668,7 +668,7 @@ export default defineConfig({
 ## File Tree (Final)
 
 ```
-voiceprep/
+interviewme/
 ├── index.html
 ├── package.json
 ├── vite.config.js

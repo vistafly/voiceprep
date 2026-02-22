@@ -152,32 +152,6 @@ export default function SetupPage({ onBack, onReady }) {
         />
       )}
 
-      {/* Ultra-thin progress line at bottom */}
-      {generating && progress < 100 && (
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 2,
-            zIndex: 2,
-            overflow: 'hidden',
-          }}
-        >
-          <div
-            style={{
-              height: '100%',
-              width: '100%',
-              background: 'linear-gradient(90deg, #c89aff, #7ddfff, #3ee8b5)',
-              transform: `scaleX(${Math.min(progress / 100, 1)})`,
-              transformOrigin: 'left',
-              transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-              boxShadow: '0 0 12px rgba(125, 223, 255, 0.4), 0 0 30px rgba(200, 154, 255, 0.2)',
-            }}
-          />
-        </div>
-      )}
 
       <NavBar
         left={

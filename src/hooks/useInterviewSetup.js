@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { generateInterview } from '../lib/api';
 
 const MIN_GENERATING_MS = 5000;
@@ -29,8 +29,6 @@ Requirements:
   const [error, setError] = useState(null);
   const [progress, setProgress] = useState(0);
 
-  const intervalRef = useRef(null);
-
   const jdWordCount = jobDescription.trim()
     ? jobDescription.trim().split(/\s+/).length
     : 0;
@@ -56,14 +54,6 @@ Requirements:
 
     const startedAt = Date.now();
 
-    // Fake progress animation
-    intervalRef.current = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 92) return prev;
-        return prev + 2 + Math.random() * 3;
-      });
-    }, 300);
-
     try {
       const result = await generateInterview(jobDescription, companyName);
 
@@ -73,7 +63,6 @@ Requirements:
         await new Promise((r) => setTimeout(r, MIN_GENERATING_MS - elapsed));
       }
 
-      clearInterval(intervalRef.current);
       setProgress(100);
 
       // Pause at 100% so user sees the success state
@@ -82,7 +71,6 @@ Requirements:
       setGenerating(false);
       return result;
     } catch (err) {
-      clearInterval(intervalRef.current);
       setGenerating(false);
       setError(err.message || 'Failed to generate interview. Please try again.');
       setProgress(0);

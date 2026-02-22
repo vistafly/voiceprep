@@ -1,6 +1,6 @@
 import { loadFirestoreHistory, saveFirestoreSession } from './firestore';
 
-const STORAGE_KEY = 'voiceprep_history';
+const STORAGE_KEY = 'interviewme_history';
 
 export function loadHistory() {
   try {

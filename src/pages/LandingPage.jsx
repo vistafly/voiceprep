@@ -140,7 +140,7 @@ export default function LandingPage({ onStart, onAnalytics }) {
               letterSpacing: 0.5,
             }}
           >
-            ◉ VoicePrep
+            ◉ InterviewMe
           </span>
         }
         right={
