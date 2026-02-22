@@ -54,3 +54,20 @@
     drop-shadow(0 0 8px rgba(200, 154, 255, 0.55))
     drop-shadow(0 0 30px rgba(125, 223, 255, 0.25));
 }
+
+/* Mobile: strip expensive per-character effects */
+@media (hover: none) and (pointer: coarse) {
+  .rotating-text .char,
+  .rotating-text .char-space {
+    background: none;
+    -webkit-background-clip: unset;
+    -webkit-text-fill-color: #d4b8ff;
+    background-clip: unset;
+  }
+
+  .rotating-text.active .char,
+  .rotating-text.active .char-space {
+    filter: none;
+    transition: opacity 1s ease;
+  }
+}

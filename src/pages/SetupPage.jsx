@@ -11,6 +11,9 @@ import LoadingDots from '../components/LoadingDots';
 import RotatingText from '../components/RotatingText';
 import UserMenu from '../components/UserMenu';
 
+const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+  (navigator.maxTouchPoints > 1 && window.innerWidth < 1024);
+
 const HYPERSPEED_PRESET = {
   onSpeedUp: () => {},
   onSlowDown: () => {},
@@ -413,8 +416,9 @@ export default function SetupPage({ onBack, onReady }) {
                 fontWeight: 300,
                 color: '#fff',
                 marginBottom: 12,
-                textShadow:
-                  '0 0 40px rgba(200, 154, 255, 0.3), 0 0 80px rgba(125, 223, 255, 0.15), 0 2px 20px rgba(0,0,0,0.8)',
+                textShadow: isMobile
+                  ? '0 2px 10px rgba(0,0,0,0.8)'
+                  : '0 0 40px rgba(200, 154, 255, 0.3), 0 0 80px rgba(125, 223, 255, 0.15), 0 2px 20px rgba(0,0,0,0.8)',
                 animation: 'fadeUp 0.9s var(--ease-snappy) 0.3s both',
               }}
             >
@@ -422,9 +426,10 @@ export default function SetupPage({ onBack, onReady }) {
                 <span
                   style={{
                     color: tokens.color.accent,
-                    filter:
-                      'brightness(1.3) drop-shadow(0 0 12px rgba(62, 232, 181, 0.7)) drop-shadow(0 0 40px rgba(62, 232, 181, 0.35))',
-                    transition: 'filter 0.6s ease, color 0.6s ease',
+                    filter: isMobile
+                      ? 'none'
+                      : 'brightness(1.3) drop-shadow(0 0 12px rgba(62, 232, 181, 0.7)) drop-shadow(0 0 40px rgba(62, 232, 181, 0.35))',
+                    transition: isMobile ? 'color 0.6s ease' : 'filter 0.6s ease, color 0.6s ease',
                   }}
                 >
                   You're ready.
@@ -448,13 +453,16 @@ export default function SetupPage({ onBack, onReady }) {
             <p
               style={{
                 fontSize: 14,
-                textShadow:
-                  '0 0 20px rgba(200, 154, 255, 0.2), 0 2px 16px rgba(0,0,0,0.8)',
-                transition: 'color 0.6s ease, filter 0.6s ease, text-shadow 0.6s ease',
+                textShadow: isMobile
+                  ? '0 2px 8px rgba(0,0,0,0.8)'
+                  : '0 0 20px rgba(200, 154, 255, 0.2), 0 2px 16px rgba(0,0,0,0.8)',
+                transition: isMobile
+                  ? 'color 0.6s ease'
+                  : 'color 0.6s ease, filter 0.6s ease, text-shadow 0.6s ease',
                 color: progress >= 100
                   ? tokens.color.accent
                   : tokens.color.textSecondary,
-                filter: progress >= 100
+                filter: !isMobile && progress >= 100
                   ? 'brightness(1.2) drop-shadow(0 0 10px rgba(62, 232, 181, 0.5))'
                   : 'none',
                 animation: 'fadeUp 0.9s var(--ease-snappy) 0.5s both',
