@@ -50,9 +50,9 @@
   opacity: 1;
   transform: none !important;
   filter:
-    brightness(1.15)
-    drop-shadow(0 0 8px rgba(200, 154, 255, 0.55))
-    drop-shadow(0 0 30px rgba(125, 223, 255, 0.25));
+    brightness(1.08)
+    drop-shadow(0 0 4px rgba(200, 154, 255, 0.3))
+    drop-shadow(0 0 14px rgba(125, 223, 255, 0.1));
 }
 
 /* Mobile: strip expensive per-character effects */

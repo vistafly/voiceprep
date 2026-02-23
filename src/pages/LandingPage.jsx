@@ -171,9 +171,10 @@ export default function LandingPage({ onStart, onAnalytics }) {
         )}
       </div>
 
-      {/* Brand + welcome — centered inside orb */}
+      {/* Brand + welcome — desktop: all grouped; mobile: logo top, name in orb */}
       {!loading && (
         <div
+          className="landing-brand"
           style={{
             position: 'fixed',
             top: '38%',
@@ -219,6 +220,49 @@ export default function LandingPage({ onStart, onAnalytics }) {
           >
             Interview<span style={{ fontWeight: 500 }}>Me</span>
           </span>
+          {/* Welcome — visible on desktop only (inside flex group) */}
+          <p
+            className="landing-welcome-desktop"
+            style={{
+              fontFamily: tokens.font.body,
+              fontSize: 'clamp(11px, 1.2vw, 14px)',
+              fontWeight: 300,
+              color: 'rgba(255,255,255,0.3)',
+              letterSpacing: 3,
+              textTransform: 'uppercase',
+              margin: 0,
+              whiteSpace: 'nowrap',
+              textShadow: '0 0 30px rgba(62,232,181,0.15), 0 0 60px rgba(62,232,181,0.06)',
+            }}
+          >
+            Welcome,{' '}
+            {user?.displayName ? (
+              user.displayName.split(' ')[0]
+            ) : (
+              <ScrambleText
+                words={WELCOME_NAMES}
+                interval={3000}
+                charDelay={80}
+              />
+            )}
+          </p>
+        </div>
+      )}
+
+      {/* Welcome — visible on mobile only (centered in orb) */}
+      {!loading && (
+        <div
+          className="landing-welcome-mobile"
+          style={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: 1,
+            pointerEvents: 'none',
+            animation: 'fadeIn 2s ease both',
+          }}
+        >
           <p
             style={{
               fontFamily: tokens.font.body,
@@ -272,6 +316,7 @@ export default function LandingPage({ onStart, onAnalytics }) {
             margin: '0 0 14px',
             animation: 'fadeUp 0.8s var(--ease-snappy) both',
             letterSpacing: -0.5,
+            textShadow: '0 0 20px rgba(0,0,0,0.8), 0 0 40px rgba(0,0,0,0.5)',
           }}
         >
           Paste the job.{' '}
@@ -298,6 +343,7 @@ export default function LandingPage({ onStart, onAnalytics }) {
             margin: '0 0 32px',
             letterSpacing: 1.5,
             textTransform: 'uppercase',
+            textShadow: '0 0 16px rgba(0,0,0,0.8), 0 0 32px rgba(0,0,0,0.4)',
           }}
         >
           AI questions &middot; Voice or text &middot; Instant grading

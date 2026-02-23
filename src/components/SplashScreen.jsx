@@ -112,12 +112,12 @@ export default function SplashScreen({ onComplete }) {
         />
       </div>
 
-      {/* Brand mark — positioned to match LandingPage exactly (top: 38%) */}
+      {/* Brand mark — centered inside the orb */}
       <div
         className="splash-brand"
         style={{
           position: 'fixed',
-          top: '38%',
+          top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
           zIndex: 1,

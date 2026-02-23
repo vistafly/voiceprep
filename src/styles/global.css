@@ -203,3 +203,23 @@ textarea:focus {
 .page-enter {
   animation: fadeUp 0.7s var(--ease-snappy) both;
 }
+
+/* --- Landing brand: desktop vs mobile layout --- */
+.landing-welcome-mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .landing-brand {
+    top: clamp(48px, 8vh, 80px) !important;
+    transform: translateX(-50%) !important;
+  }
+
+  .landing-welcome-desktop {
+    display: none !important;
+  }
+
+  .landing-welcome-mobile {
+    display: block;
+  }
+}

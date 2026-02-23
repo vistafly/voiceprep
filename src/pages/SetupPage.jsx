@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { tokens } from '../styles/tokens';
 import { useInterviewSetup } from '../hooks/useInterviewSetup';
@@ -67,6 +67,7 @@ export default function SetupPage({ onBack, onReady }) {
     generate,
     canGenerate,
   } = useInterviewSetup();
+  const [btnHover, setBtnHover] = useState(false);
 
   const effectOptions = useMemo(() => HYPERSPEED_PRESET, []);
 
@@ -91,7 +92,13 @@ export default function SetupPage({ onBack, onReady }) {
               position: 'absolute',
               inset: 0,
               zIndex: 0,
-              opacity: 0.45,
+              opacity: btnHover ? 0.75 : 0.45,
+              filter: btnHover ? 'brightness(1.8) saturate(0.35) contrast(1.1)' : 'brightness(1) saturate(1)',
+              transform: btnHover ? 'scale(1.03)' : 'scale(1)',
+              transformOrigin: 'center 60%',
+              transition: btnHover
+                ? 'opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
+                : 'opacity 1s cubic-bezier(0.4, 0, 0.2, 1), filter 1s cubic-bezier(0.4, 0, 0.2, 1), transform 1s cubic-bezier(0.4, 0, 0.2, 1)',
               animation: 'fadeIn 1.6s ease both',
             }}
           >
@@ -390,6 +397,8 @@ export default function SetupPage({ onBack, onReady }) {
                 variant="primary"
                 onClick={handleGenerate}
                 disabled={!canGenerate}
+                onMouseEnter={() => canGenerate && setBtnHover(true)}
+                onMouseLeave={() => setBtnHover(false)}
                 style={{ width: '100%', padding: 'clamp(12px, 1.4vw, 18px) clamp(18px, 2.5vw, 32px)', fontSize: 'clamp(14px, 1.4vw, 17px)' }}
               >
                 Generate Interview
