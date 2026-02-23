@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Mail } from 'lucide-react';
 import { tokens } from '../styles/tokens';
@@ -104,6 +104,19 @@ export default function AuthCard({ open, onClose }) {
     }
   };
 
+  const cardRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handleClickOutside = (e) => {
+      if (cardRef.current && !cardRef.current.contains(e.target)) {
+        handleClose();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [open]);
+
   const hoverIn = (e) => {
     e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
     e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)';
@@ -118,21 +131,8 @@ export default function AuthCard({ open, onClose }) {
   return (
     <AnimatePresence>
       {open && (
-        <>
-        {/* Invisible backdrop — click outside to close */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          onClick={handleClose}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 299,
-          }}
-        />
-        <motion.div
+          ref={cardRef}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 8 }}
@@ -186,7 +186,7 @@ export default function AuthCard({ open, onClose }) {
                   letterSpacing: 0.3,
                 }}
               >
-                Sign in to save your progress
+                Sign in to get started
               </p>
 
               {/* Google */}
@@ -221,25 +221,6 @@ export default function AuthCard({ open, onClose }) {
                 </span>
               </button>
 
-              {/* Guest */}
-              <button
-                onClick={handleClose}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'rgba(255,255,255,0.2)',
-                  fontSize: 12,
-                  fontFamily: tokens.font.body,
-                  cursor: 'pointer',
-                  padding: '6px 0 0',
-                  letterSpacing: 0.5,
-                  transition: 'color 0.2s',
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.4)')}
-                onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.2)')}
-              >
-                Continue as guest
-              </button>
             </div>
           )}
 
@@ -379,7 +360,6 @@ export default function AuthCard({ open, onClose }) {
             </form>
           )}
         </motion.div>
-        </>
       )}
     </AnimatePresence>
   );

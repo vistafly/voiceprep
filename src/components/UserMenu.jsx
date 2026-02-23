@@ -6,6 +6,8 @@ import { useAuth } from '../contexts/AuthContext';
 export default function UserMenu() {
   const { user, signOut } = useAuth();
   const [open, setOpen] = useState(false);
+  const [avatarHover, setAvatarHover] = useState(false);
+  const [signOutHover, setSignOutHover] = useState(false);
   const ref = useRef(null);
 
   // Close on outside click
@@ -32,8 +34,7 @@ export default function UserMenu() {
           width: 32,
           height: 32,
           borderRadius: '50%',
-          border: '1px solid rgba(255,255,255,0.1)',
-          background: photoURL ? 'transparent' : 'rgba(62,232,181,0.15)',
+          border: '1px solid',
           color: tokens.color.accent,
           fontSize: 13,
           fontWeight: 600,
@@ -44,8 +45,19 @@ export default function UserMenu() {
           justifyContent: 'center',
           overflow: 'hidden',
           padding: 0,
-          transition: 'border-color 0.2s',
+          transition: avatarHover
+            ? 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)'
+            : 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+          boxShadow: avatarHover
+            ? '0 0 12px rgba(62,232,181,0.15), 0 0 24px rgba(156,67,254,0.08)'
+            : 'none',
+          borderColor: avatarHover ? 'rgba(62,232,181,0.3)' : 'rgba(255,255,255,0.1)',
+          background: avatarHover
+            ? (photoURL ? 'transparent' : 'rgba(62,232,181,0.25)')
+            : (photoURL ? 'transparent' : 'rgba(62,232,181,0.15)'),
         }}
+        onMouseEnter={() => setAvatarHover(true)}
+        onMouseLeave={() => setAvatarHover(false)}
       >
         {photoURL ? (
           <img
@@ -64,7 +76,7 @@ export default function UserMenu() {
         <div
           style={{
             position: 'absolute',
-            top: 'calc(100% + 8px)',
+            bottom: 'calc(100% + 8px)',
             right: 0,
             minWidth: 200,
             padding: 12,
@@ -121,21 +133,17 @@ export default function UserMenu() {
               padding: '8px 8px',
               fontSize: 12,
               fontFamily: tokens.font.body,
-              color: tokens.color.textSecondary,
-              background: 'none',
+              color: signOutHover ? 'rgba(255,255,255,0.9)' : tokens.color.textSecondary,
+              background: signOutHover ? 'rgba(62,232,181,0.06)' : 'none',
               border: 'none',
               borderRadius: tokens.radius.sm,
               cursor: 'pointer',
-              transition: 'color 0.15s, background 0.15s',
+              transition: signOutHover
+                ? 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
+                : 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = tokens.color.text;
-              e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = tokens.color.textSecondary;
-              e.currentTarget.style.background = 'none';
-            }}
+            onMouseEnter={() => setSignOutHover(true)}
+            onMouseLeave={() => setSignOutHover(false)}
           >
             <LogOut size={14} />
             Sign out

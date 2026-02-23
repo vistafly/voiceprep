@@ -1,10 +1,8 @@
 import { useMemo, useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { tokens } from '../styles/tokens';
 import { useInterviewSetup } from '../hooks/useInterviewSetup';
 import { useAuth } from '../contexts/AuthContext';
-import NavBar from '../components/NavBar';
-import Button from '../components/Button';
 import DarkVeil from '../components/DarkVeil';
 import Hyperspeed from '../components/Hyperspeed';
 import LoadingDots from '../components/LoadingDots';
@@ -68,6 +66,7 @@ export default function SetupPage({ onBack, onReady }) {
     canGenerate,
   } = useInterviewSetup();
   const [btnHover, setBtnHover] = useState(false);
+  const [backHover, setBackHover] = useState(false);
 
   const effectOptions = useMemo(() => HYPERSPEED_PRESET, []);
 
@@ -83,7 +82,7 @@ export default function SetupPage({ onBack, onReady }) {
     : 0;
 
   return (
-    <div className="page-enter" style={{ position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
+    <div className="page-enter" style={{ position: 'relative', height: '100dvh', overflow: 'hidden' }}>
       {!generating && (
         <>
           {/* DarkVeil canvas — full viewport, dimmed behind content */}
@@ -92,13 +91,17 @@ export default function SetupPage({ onBack, onReady }) {
               position: 'absolute',
               inset: 0,
               zIndex: 0,
-              opacity: btnHover ? 0.75 : 0.45,
-              filter: btnHover ? 'brightness(1.8) saturate(0.35) contrast(1.1)' : 'brightness(1) saturate(1)',
-              transform: btnHover ? 'scale(1.03)' : 'scale(1)',
+              opacity: (btnHover || backHover) ? 0.75 : 0.45,
+              filter: backHover
+                ? 'brightness(1.8) saturate(0.35) contrast(1.1) hue-rotate(120deg)'
+                : btnHover
+                  ? 'brightness(1.8) saturate(0.35) contrast(1.1)'
+                  : 'brightness(1) saturate(1)',
+              transform: (btnHover || backHover) ? 'scale(1.03)' : 'scale(1)',
               transformOrigin: 'center 60%',
-              transition: btnHover
-                ? 'opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
-                : 'opacity 1s cubic-bezier(0.4, 0, 0.2, 1), filter 1s cubic-bezier(0.4, 0, 0.2, 1), transform 1s cubic-bezier(0.4, 0, 0.2, 1)',
+              transition: (btnHover || backHover)
+                ? 'opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0s, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
+                : 'opacity 1s cubic-bezier(0.4, 0, 0.2, 1), filter 0s, transform 1s cubic-bezier(0.4, 0, 0.2, 1)',
               animation: 'fadeIn 1.6s ease both',
             }}
           >
@@ -162,35 +165,22 @@ export default function SetupPage({ onBack, onReady }) {
       )}
 
 
-      <NavBar
-        left={
-          !generating ? (
-            <button
-              onClick={onBack}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                fontSize: 13,
-                color: tokens.color.textSecondary,
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                padding: '4px 0',
-                transition: `color 0.2s ${tokens.ease.snappy}`,
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = tokens.color.text)}
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.color = tokens.color.textSecondary)
-              }
-            >
-              <ArrowLeft size={16} />
-              Back
-            </button>
-          ) : null
-        }
-        right={user ? <UserMenu /> : null}
-      />
+      {/* Back + Generate buttons are rendered inside the form layout below */}
+
+      {/* Account / UserMenu — bottom-right */}
+      {user && !generating && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 24,
+            right: 24,
+            zIndex: 100,
+            animation: 'fadeIn 1s ease 0.4s both',
+          }}
+        >
+          <UserMenu />
+        </div>
+      )}
 
       <div
         style={{
@@ -198,11 +188,110 @@ export default function SetupPage({ onBack, onReady }) {
           zIndex: 1,
           maxWidth: 'clamp(400px, 50vw, 880px)',
           margin: '0 auto',
-          padding: `${isMobile ? '72px' : 'clamp(88px, 10vh, 160px)'} clamp(16px, 4vw, 40px) ${isMobile ? '24px' : 'clamp(40px, 8vh, 80px)'}`,
+          height: '100dvh',
+          boxSizing: 'border-box',
+          display: 'flex',
+          flexDirection: 'column',
+          padding: `${isMobile ? '60px' : 'clamp(64px, 7vh, 110px)'} clamp(16px, 4vw, 40px) ${isMobile ? '56px' : 'clamp(28px, 4vh, 48px)'}`,
         }}
       >
         {!generating ? (
           /* --- Form State --- */
+          <>
+          {/* Mobile nav row — fixed at top, outside padding */}
+          {isMobile && (
+            <div
+              style={{
+                position: 'fixed',
+                top: 14,
+                left: 16,
+                right: 16,
+                zIndex: 100,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                animation: 'fadeIn 0.6s ease 0.2s both',
+              }}
+            >
+              <button
+                onClick={onBack}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  fontSize: 13,
+                  fontFamily: tokens.font.body,
+                  fontWeight: 400,
+                  letterSpacing: 0.3,
+                  color: 'rgba(255,120,120,0.5)',
+                  background: 'rgba(255,80,80,0.04)',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(255,80,80,0.08)',
+                  borderRadius: tokens.radius.full,
+                  cursor: 'pointer',
+                  padding: '8px 16px 8px 12px',
+                  transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                  WebkitTapHighlightColor: 'transparent',
+                }}
+                onMouseEnter={(e) => {
+                  setBackHover(true);
+                  e.currentTarget.style.color = 'rgba(255,140,140,0.95)';
+                  e.currentTarget.style.background = 'rgba(255,80,80,0.12)';
+                  e.currentTarget.style.borderColor = 'rgba(255,80,80,0.22)';
+                }}
+                onMouseLeave={(e) => {
+                  setBackHover(false);
+                  e.currentTarget.style.color = 'rgba(255,120,120,0.5)';
+                  e.currentTarget.style.background = 'rgba(255,80,80,0.04)';
+                  e.currentTarget.style.borderColor = 'rgba(255,80,80,0.08)';
+                }}
+              >
+                <ArrowLeft size={14} />
+                Back
+              </button>
+              <button
+                onClick={handleGenerate}
+                disabled={!canGenerate}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  fontSize: 13,
+                  fontFamily: tokens.font.body,
+                  fontWeight: 400,
+                  letterSpacing: 0.3,
+                  color: canGenerate ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.25)',
+                  background: canGenerate ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.02)',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                  border: canGenerate ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(255,255,255,0.04)',
+                  borderRadius: tokens.radius.full,
+                  cursor: canGenerate ? 'pointer' : 'default',
+                  padding: '8px 14px 8px 16px',
+                  transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                  WebkitTapHighlightColor: 'transparent',
+                }}
+                onMouseEnter={(e) => {
+                  if (canGenerate) setBtnHover(true);
+                  if (!canGenerate) return;
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.12)';
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)';
+                  e.currentTarget.style.color = '#fff';
+                }}
+                onMouseLeave={(e) => {
+                  setBtnHover(false);
+                  if (!canGenerate) return;
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                  e.currentTarget.style.color = 'rgba(255,255,255,0.85)';
+                }}
+              >
+                Begin
+                <ArrowRight size={14} />
+              </button>
+            </div>
+          )}
           <div
             style={{
               backdropFilter: 'blur(12px)',
@@ -210,8 +299,12 @@ export default function SetupPage({ onBack, onReady }) {
               background: 'rgba(255, 255, 255, 0.03)',
               border: '1px solid rgba(255, 255, 255, 0.06)',
               borderRadius: tokens.radius.xl,
-              padding: 'clamp(24px, 3vw, 40px) clamp(20px, 2.5vw, 36px) clamp(24px, 2.5vw, 36px)',
+              padding: 'clamp(16px, 2vw, 28px) clamp(24px, 3vw, 44px)',
               animation: 'fadeUp 0.7s var(--ease-snappy) both',
+              flex: '1 1 auto',
+              minHeight: 0,
+              display: 'flex',
+              flexDirection: 'column',
             }}
           >
             <h1
@@ -222,7 +315,7 @@ export default function SetupPage({ onBack, onReady }) {
                 letterSpacing: -0.5,
                 lineHeight: 1.3,
                 color: '#fff',
-                marginBottom: 10,
+                marginBottom: 4,
                 textAlign: 'center',
                 animation: 'fadeUp 0.8s var(--ease-snappy) both',
               }}
@@ -237,7 +330,7 @@ export default function SetupPage({ onBack, onReady }) {
                 letterSpacing: 1.5,
                 textTransform: 'uppercase',
                 textAlign: 'center',
-                marginBottom: 'clamp(20px, 3vw, 36px)',
+                marginBottom: 'clamp(14px, 2vw, 24px)',
                 animation: 'fadeUp 0.8s var(--ease-snappy) 0.1s both',
               }}
             >
@@ -249,7 +342,7 @@ export default function SetupPage({ onBack, onReady }) {
               style={{
                 display: 'flex',
                 gap: 'clamp(12px, 1.2vw, 20px)',
-                marginBottom: 'clamp(16px, 1.8vh, 28px)',
+                marginBottom: 'clamp(12px, 1.4vh, 20px)',
                 animation: 'fadeUp 0.7s var(--ease-snappy) 0.12s both',
                 flexWrap: 'wrap',
               }}
@@ -323,8 +416,11 @@ export default function SetupPage({ onBack, onReady }) {
             {/* Job Description */}
             <div
               style={{
-                marginBottom: 'clamp(20px, 2.2vh, 32px)',
                 animation: 'fadeUp 0.7s var(--ease-snappy) 0.22s both',
+                flex: '1 1 auto',
+                minHeight: 0,
+                display: 'flex',
+                flexDirection: 'column',
               }}
             >
               <label
@@ -346,7 +442,8 @@ export default function SetupPage({ onBack, onReady }) {
                 placeholder="Paste the full job description here..."
                 style={{
                   width: '100%',
-                  minHeight: isMobile ? 'clamp(120px, 25vh, 260px)' : 'clamp(200px, 35vh, 520px)',
+                  flex: '1 1 auto',
+                  minHeight: isMobile ? 100 : 140,
                   padding: 'clamp(10px, 1.2vw, 16px) clamp(12px, 1.5vw, 20px)',
                   fontSize: 'clamp(13px, 1.4vw, 17px)',
                   lineHeight: 1.6,
@@ -355,7 +452,7 @@ export default function SetupPage({ onBack, onReady }) {
                   borderRadius: tokens.radius.md,
                   color: tokens.color.text,
                   outline: 'none',
-                  resize: 'vertical',
+                  resize: 'none',
                   transition: `border-color 0.2s ${tokens.ease.snappy}`,
                 }}
               />
@@ -376,48 +473,107 @@ export default function SetupPage({ onBack, onReady }) {
               </div>
             </div>
 
-            {/* Error */}
-            {error && (
-              <p
-                style={{
-                  fontSize: 13,
-                  color: tokens.color.error,
-                  marginBottom: 16,
-                }}
-              >
-                {error}
-              </p>
-            )}
 
-            {/* Generate Button */}
-            <div
-              style={{ animation: 'fadeUp 0.7s var(--ease-snappy) 0.27s both' }}
-            >
-              <Button
-                variant="primary"
-                onClick={handleGenerate}
-                disabled={!canGenerate}
-                onMouseEnter={() => canGenerate && setBtnHover(true)}
-                onMouseLeave={() => setBtnHover(false)}
-                style={{ width: '100%', padding: 'clamp(12px, 1.4vw, 18px) clamp(18px, 2.5vw, 32px)', fontSize: 'clamp(14px, 1.4vw, 17px)' }}
-              >
-                Generate Interview
-              </Button>
-            </div>
-
-            {/* Info */}
-            <p
-              style={{
-                fontSize: 12,
-                color: tokens.color.textMuted,
-                textAlign: 'center',
-                marginTop: 16,
-                animation: 'fadeUp 0.7s var(--ease-snappy) 0.32s both',
-              }}
-            >
-              AI will generate 8 tailored questions based on the role.
-            </p>
           </div>
+
+          {/* Back — left of modal, vertically centered (desktop only) */}
+          <button
+            onClick={onBack}
+            style={{
+              position: 'fixed',
+              top: '50%',
+              right: 'calc(50% + clamp(200px, 25vw, 440px) + clamp(16px, 4vw, 40px) + 16px)',
+              transform: 'translateY(-50%)',
+              zIndex: 100,
+              display: isMobile ? 'none' : 'flex',
+              alignItems: 'center',
+              gap: 6,
+              fontSize: 13,
+              fontFamily: tokens.font.body,
+              fontWeight: 400,
+              letterSpacing: 0.3,
+              color: 'rgba(255,120,120,0.5)',
+              background: 'rgba(255,80,80,0.04)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255,80,80,0.08)',
+              borderRadius: tokens.radius.full,
+              cursor: 'pointer',
+              padding: '8px 20px 8px 14px',
+              transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+              animation: 'fadeIn 0.6s ease 0.2s both',
+            }}
+            onMouseEnter={(e) => {
+              setBackHover(true);
+              e.currentTarget.style.color = 'rgba(255,140,140,0.95)';
+              e.currentTarget.style.background = 'rgba(255,80,80,0.12)';
+              e.currentTarget.style.borderColor = 'rgba(255,80,80,0.22)';
+            }}
+            onMouseLeave={(e) => {
+              setBackHover(false);
+              e.currentTarget.style.color = 'rgba(255,120,120,0.5)';
+              e.currentTarget.style.background = 'rgba(255,80,80,0.04)';
+              e.currentTarget.style.borderColor = 'rgba(255,80,80,0.08)';
+            }}
+          >
+            <ArrowLeft size={14} />
+            Back
+          </button>
+
+          {/* Begin — right of modal, vertically centered (desktop only) */}
+          <button
+            onClick={handleGenerate}
+            disabled={!canGenerate}
+            style={{
+              position: 'fixed',
+              top: '50%',
+              left: 'calc(50% + clamp(200px, 25vw, 440px) + clamp(16px, 4vw, 40px) + 16px)',
+              transform: 'translateY(-50%)',
+              zIndex: 100,
+              display: isMobile ? 'none' : 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '8px 18px 8px 20px',
+              fontSize: 13,
+              fontFamily: tokens.font.body,
+              fontWeight: 400,
+              letterSpacing: 0.3,
+              color: canGenerate ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.25)',
+              background: canGenerate ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.02)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: canGenerate ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(255,255,255,0.04)',
+              borderRadius: tokens.radius.full,
+              cursor: canGenerate ? 'pointer' : 'default',
+              transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+              animation: 'fadeIn 0.6s ease 0.2s both',
+            }}
+            onMouseEnter={(e) => {
+              if (canGenerate) setBtnHover(true);
+              if (!canGenerate) return;
+              e.currentTarget.style.background = 'rgba(255,255,255,0.12)';
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)';
+              e.currentTarget.style.color = '#fff';
+            }}
+            onMouseLeave={(e) => {
+              setBtnHover(false);
+              if (!canGenerate) return;
+              e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+              e.currentTarget.style.color = 'rgba(255,255,255,0.85)';
+            }}
+          >
+            Begin
+            <ArrowRight size={14} />
+          </button>
+
+          {/* Error — centered below modal */}
+          {error && (
+            <p style={{ fontSize: 12, color: tokens.color.error, margin: '8px 0 0', textAlign: 'center' }}>
+              {error}
+            </p>
+          )}
+          </>
         ) : (
           /* --- Generating State: text overlaid on Hyperspeed --- */
           <div

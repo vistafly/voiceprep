@@ -43,7 +43,7 @@ export default function LandingPage({ onStart, onAnalytics }) {
   const [panelSide, setPanelSide] = useState('right');
   const [ctaHover, setCtaHover] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
-  const [authAutoShown, setAuthAutoShown] = useState(false);
+  const [pendingStart, setPendingStart] = useState(false);
 
   // Load history from Firestore for signed-in users
   useEffect(() => {
@@ -51,16 +51,13 @@ export default function LandingPage({ onStart, onAnalytics }) {
     loadHistoryForUser(user?.uid).then(setHistory);
   }, [user, loading]);
 
-  // Auto-show auth card after 2s for first-time unauthenticated visitors
+  // Auto-proceed with onStart after successful auth from CTA
   useEffect(() => {
-    if (loading || user || authAutoShown) return;
-    if (sessionStorage.getItem('auth_dismissed')) return;
-    const t = setTimeout(() => {
-      setAuthOpen(true);
-      setAuthAutoShown(true);
-    }, 2000);
-    return () => clearTimeout(t);
-  }, [loading, user, authAutoShown]);
+    if (user && pendingStart) {
+      setPendingStart(false);
+      onStart();
+    }
+  }, [user, pendingStart, onStart]);
 
   const handleCtaEnter = useCallback(() => {
     setCtaHover(true);
@@ -73,7 +70,13 @@ export default function LandingPage({ onStart, onAnalytics }) {
   }, []);
 
   return (
-    <div className="page-enter" style={{ position: 'relative', height: '100dvh', overflow: 'hidden' }}>
+    <div
+      className="page-enter"
+      onTouchStart={handleCtaEnter}
+      onTouchEnd={handleCtaLeave}
+      onTouchCancel={handleCtaLeave}
+      style={{ position: 'relative', height: '100dvh', overflow: 'hidden' }}
+    >
       {/* Orb — full viewport, interactive */}
       <div
         style={{
@@ -305,6 +308,14 @@ export default function LandingPage({ onStart, onAnalytics }) {
           padding: '0 24px min(80px, 10dvh)',
         }}
       >
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            pointerEvents: 'auto',
+          }}
+        >
         <h1
           className="delay-2"
           style={{
@@ -353,12 +364,18 @@ export default function LandingPage({ onStart, onAnalytics }) {
           className="delay-4"
           style={{
             animation: 'fadeUp 0.8s var(--ease-snappy) 0.2s both',
-            pointerEvents: 'auto',
           }}
         >
           <Button
             variant="ghost"
-            onClick={onStart}
+            onClick={() => {
+              if (user) {
+                onStart();
+              } else {
+                setPendingStart(true);
+                setAuthOpen(true);
+              }
+            }}
             onMouseEnter={handleCtaEnter}
             onMouseLeave={handleCtaLeave}
             style={{
@@ -383,6 +400,7 @@ export default function LandingPage({ onStart, onAnalytics }) {
             Get Started
           </Button>
         </div>
+        </div>
       </div>
 
       {/* Floating session button */}
@@ -406,13 +424,10 @@ export default function LandingPage({ onStart, onAnalytics }) {
         side={panelSide}
       />
 
-      {/* Auth Card (non-intrusive floating sign-in) */}
+      {/* Auth Card */}
       <AuthCard
         open={authOpen && !user}
-        onClose={() => {
-          setAuthOpen(false);
-          sessionStorage.setItem('auth_dismissed', '1');
-        }}
+        onClose={() => setAuthOpen(false)}
       />
     </div>
   );
